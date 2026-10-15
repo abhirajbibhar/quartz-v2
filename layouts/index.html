@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ .Lang }}">
+{{ partial "head.html" . }}
+
+<body>
+{{partial "nav.html" .}}
+<div class="singlePage">
+    <main>
+    <header class="home-header card">
+        {{- $config := cond (eq $.Site.Language.Lang "en") "config" (printf "config.%s" $.Site.Language.Lang) -}}
+        {{- $data := index hugo.Data $config -}}
+        <h1 id="page-title">{{ $data.page_title | default hugo.Data.config.page_title }}</h1>
+        {{- with $data.subtitle | default hugo.Data.config.subtitle -}}
+        <p class="subtitle">{{ . }}</p>
+        {{- end -}}
+    </header>
+    <!-- Begin actual content -->
+    <article class="card">
+        {{partial "textprocessing.html" . }}
+        {{if hugo.Data.config.enableRecentNotes}}
+          {{partial "recent.html" . }}
+        {{end}}
+    </article>
+    {{partial "footerIndex.html" .}}
+    </main>
+</div>
+</body>
+</html>

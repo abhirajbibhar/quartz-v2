@@ -1,0 +1,272 @@
+<!-- set data/config yaml file based on website language -->
+{{ $config := cond (eq $.Site.Language.Lang "en") "config" (printf "config.%s" $.Site.Language.Lang) }}
+{{ $data := index hugo.Data $config }}
+{{ $vendor := partialCached "lib/vendor.html" . }}
+<head>
+  <meta charset="UTF-8" />
+  {{- $meta := partial "page-meta.html" . -}}
+  <meta name="description" content="{{ $meta.desc }}" />
+  <title>{{ $meta.title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- SEO: canonical, Open Graph, Twitter Card, JSON-LD -->
+  {{ partial "seo.html" (dict "page" . "meta" $meta) }}
+
+  <!-- Favicon -->
+  {{ $favicon := $data.favicon | default hugo.Data.config.favicon | default (slice (dict "rel" "shortcut icon" "type" "image/png" "href" "favicon-512x512.png")) }}
+  {{ $type := (printf "%T" $favicon) }}
+  {{ if eq $type "string" }}
+  {{ $favicon | safeHTML }}
+  {{ else }}
+  {{ range $favicon }}
+  <link rel="{{.rel}}" {{if .type}}type="{{.type}}"{{end}} {{if .sizes}}sizes="{{.sizes}}"{{end}} href="{{.href | relURL}}" />
+  {{- end }}
+  {{ end }}
+
+  <!-- Preload critical fonts (paths must match the flat files in static/et-book/
+       and the first @font-face src in base.scss; WOFF2 is ~18% smaller than the WOFF
+       these used to point at). -->
+  <link rel="preload" href="{{ "et-book/et-book-roman-line-figures.woff2" | relURL }}" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="{{ "et-book/et-book-bold-line-figures.woff2" | relURL }}" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="{{ "et-book/et-book-display-italic-old-style-figures.woff2" | relURL }}" as="font" type="font/woff2" crossorigin />
+
+  <!-- Apply the saved theme before first paint. Previously darkmode.js did this
+       after the deferred script ran, which forced a full-page restyle and
+       repaint (including the LCP text) once the page had already rendered. -->
+  <script>
+    (function () {
+      try {
+        var pref = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.setAttribute("saved-theme", localStorage.getItem("theme") || pref);
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- CSS (inlined; see below) -->
+  {{$sass := resources.Match "styles/[!_]*.scss" }}
+  {{$css := slice }}
+  {{range $sass}}
+  {{$scss := . | css.Sass (dict "outputStyle" "compressed") }}
+  {{$css = $css | append $scss}}
+  {{end}}
+  {{if $data.enableCallouts | default hugo.Data.config.enableCallouts}}
+    {{$scss := resources.Get "styles/_callouts.scss" | css.Sass (dict "outputStyle" "compressed") }}
+    {{$css = $css | append $scss}}
+  {{end}}
+  {{/* Inlined rather than linked: the audit showed the single stylesheet was the
+       only remaining render-blocking request, costing ~740 ms of FCP/LCP.
+       The stylesheet is ~10 KB gzipped and shares the document's compression. */}}
+  {{$finalCss := $css | resources.Concat "styles.css" | resources.Minify }}
+  <style>{{$finalCss.Content | safeCSS}}</style>
+
+  {{/* Syntax highlighting is tiny: inline the light theme and let darkmode.js
+       add the dark theme on demand, so neither costs a render-blocking request. */}}
+  {{$lightSyntax := resources.Get "styles/_light_syntax.scss" | css.Sass (dict "outputStyle" "compressed") | resources.Minify }}
+  <style id="syntax-light">{{$lightSyntax.Content | safeCSS}}</style>
+
+  <!-- All scripts deferred — nothing blocks rendering -->
+  {{$scripts := (slice "js/darkmode.js" "js/util.js")}}
+  {{range $scripts}}
+  {{$scriptname := .}}
+  {{ $s := resources.Get $scriptname | resources.ExecuteAsTemplate $scriptname . | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer src="{{$s.RelPermalink}}"></script>
+  {{end}}
+
+  <!-- KaTeX deferred -->
+  {{partial "katex.html" .}}
+
+  <!-- Nav bar (drop-up dock) script deferred -->
+  {{ $nav := resources.Get "js/nav.js" | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer src="{{ $nav.RelPermalink }}"></script>
+
+  <!-- Floating UI deferred (self-hosted; core first, then dom — never used apart) -->
+  <script defer src="{{ $vendor.floatingUI.RelPermalink }}"></script>
+
+  <!-- Popover deferred -->
+  {{ $popover := resources.Get "js/popover.js" | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer src="{{$popover.RelPermalink}}"></script>
+
+  <!-- Optional scripts deferred -->
+  {{ if $data.enableCodeBlockTitle | default hugo.Data.config.enableCodeBlockTitle }}
+  {{ $codeTitle := resources.Get "js/code-title.js" | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer src="{{$codeTitle.RelPermalink}}"></script>
+  {{end}}
+
+  {{ if $data.enableCodeBlockCopy | default hugo.Data.config.enableCodeBlockCopy }}
+  {{ $clipboard := resources.Get "js/clipboard.js" | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer src="{{$clipboard.RelPermalink}}"></script>
+  {{ end }}
+
+  {{ if $data.enableCallouts | default hugo.Data.config.enableCallouts }}
+  {{ $callouts := resources.Get "js/callouts.js" | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer src="{{$callouts.RelPermalink}}"></script>
+  {{ end }}
+
+  <!-- Preload page vars -->
+  {{$idx := partialCached "lib/build-index.html" . "build-index" }}
+  {{$linkIndexJSON := (dict "index" (dict "links" $idx.links "backlinks" $idx.backlinks) "links" $idx.edges) | jsonify }}
+  {{$contentIndexJSON := $idx.content | jsonify }}
+  {{$linkIndex := resources.FromString "indices/linkIndex.json" $linkIndexJSON | resources.Fingerprint "md5" | resources.Minify }}
+  {{$contentIndex := resources.FromString "indices/contentIndex.json" $contentIndexJSON | resources.Fingerprint "md5" | resources.Minify }}
+  <script defer>
+    // Built from the current origin rather than the configured baseURL, so the graph,
+    // popover lookups and SPA navigation follow whatever host serves the page:
+    // localhost, a LAN address, or a Cloudflare preview deployment.
+    const SITE_PATH = new URL({{.Site.BaseURL}}).pathname
+    const BASE_URL = window.location.origin + SITE_PATH
+    const BASE = BASE_URL.replace(/\/$/, "")
+
+    {{ $graphJs := resources.Get "js/graph.js" | resources.Fingerprint "md5" }}
+    const loadScript = (src) => new Promise((resolve, reject) => {
+      const el = document.createElement("script")
+      el.src = src
+      el.onload = resolve
+      el.onerror = reject
+      document.head.appendChild(el)
+    })
+    let graphLibs
+    // d3 + graph.js are fetched only when the graph is about to be drawn.
+    const ensureGraphLibs = () => {
+      if (!graphLibs) {
+        graphLibs = (window.d3 ? Promise.resolve() : loadScript("{{ $vendor.d3.RelPermalink }}"))
+          .then(() => loadScript("{{ $graphJs.RelPermalink }}"))
+      }
+      return graphLibs
+    }
+    // Resolves once the page has loaded and the browser is idle. Everything below the
+    // critical path (the search/preview/graph JSON, the graph itself) waits for it, so it
+    // no longer competes with fonts, the LCP element and scripts on a slow connection.
+    const afterLoad = new Promise((resolve) => {
+      const go = () => ("requestIdleCallback" in window
+        ? requestIdleCallback(() => resolve(), { timeout: 2000 })
+        : setTimeout(resolve, 300))
+      document.readyState === "complete" ? go() : window.addEventListener("load", go, { once: true })
+    })
+    const fetchData = afterLoad.then(() => Promise.all([
+          fetch("{{ $linkIndex.RelPermalink }}")
+            .then(data => data.json())
+            .then(data => ({
+              index: data.index,
+              links: data.links,
+            })),
+          fetch("{{ $contentIndex.RelPermalink }}")
+            .then(data => data.json()),
+        ]))
+        .then(([{index, links}, content]) => ({
+          index,
+          links,
+          content,
+        }))
+
+      const render = () => {
+      const siteBaseURL = new URL(BASE_URL);
+      const pathBase = siteBaseURL.pathname;
+      const pathWindow = window.location.pathname;
+      const isHome = pathBase == pathWindow;
+
+      {{if $data.enableCodeBlockCopy | default hugo.Data.config.enableCodeBlockCopy -}}
+      addCopyButtons();
+      {{ end }}
+
+      {{if $data.enableSPA | default hugo.Data.config.enableSPA -}}
+      addTitleToCodeBlocks();
+      {{ end }}
+
+      {{if $data.enableCallouts | default hugo.Data.config.enableCallouts -}}
+      addCollapsibleCallouts();
+      {{ end }}
+
+      {{if $data.enableLinkPreview | default hugo.Data.config.enableLinkPreview}}
+      initPopover(
+        BASE,
+        {{$data.enableContextualBacklinks | default hugo.Data.config.enableContextualBacklinks}},
+        {{$data.enableLatex | default hugo.Data.config.enableLatex}}
+      )
+      {{end}}
+
+      {{if $data.enableFooter | default hugo.Data.config.enableFooter}}
+      const footer = document.getElementById("footer")
+      if (footer) {
+        const container = document.getElementById("graph-container")
+        if (container) {
+          const drawGlobal = isHome && {{hugo.Data.graphConfig.enableGlobalGraph}};
+          const draw = () => {
+            container.textContent = ""
+            ensureGraphLibs()
+              .then(() =>
+                drawGraph(
+                  BASE,
+                  drawGlobal,
+                  {{hugo.Data.graphConfig.paths}},
+                  drawGlobal ? {{hugo.Data.graphConfig.globalGraph}} : {{hugo.Data.graphConfig.localGraph}}
+                )
+              )
+              .catch(() => {})
+          };
+          // The graph sits below the fold and d3 + its force simulation are the heaviest
+          // work on the page. Wait until it is in view AND the page has finished loading:
+          // on short pages the footer is in view immediately, which used to start d3
+          // during load (a forced reflow and ~800 ms of scripting on a throttled phone).
+          if ("IntersectionObserver" in window) {
+            const io = new IntersectionObserver((entries) => {
+              if (entries.some((e) => e.isIntersecting)) {
+                io.disconnect();
+                afterLoad.then(draw);
+              }
+            }, { rootMargin: "300px" });
+            io.observe(container);
+          } else {
+            afterLoad.then(draw);
+          }
+        }
+      }
+      {{end}}
+    }
+
+    const init = (doc = document) => {
+      {{if $data.enableCodeBlockCopy | default hugo.Data.config.enableCodeBlockCopy -}}
+      addCopyButtons();
+      {{ end }}
+
+      {{if $data.enableCodeBlockTitle | default hugo.Data.config.enableCodeBlockTitle -}}
+      addTitleToCodeBlocks();
+      {{- end -}}
+      {{if $data.enableLatex | default hugo.Data.config.enableLatex}}
+      renderMathInElement(doc.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+        throwOnError : false
+      });
+      {{end}}
+    };
+  </script>
+  {{if $data.enableSPA | default hugo.Data.config.enableSPA}}
+  {{ $router := resources.Get "js/router.js" | resources.ExecuteAsTemplate "js/router.js" (dict "millionRouter" $vendor.millionRouter.RelPermalink) | resources.Fingerprint "md5" | resources.Minify }}
+  {{- /* The router is a chain of ES modules (router.js -> million-router -> render/morph),
+         which the browser would otherwise discover one level at a time. Preload the whole
+         graph so they download in parallel. */ -}}
+  <link rel="modulepreload" href="{{ $router.RelPermalink }}">
+  <link rel="modulepreload" href="{{ $vendor.millionRouter.RelPermalink }}">
+  <link rel="modulepreload" href="{{ $vendor.millionMorph.RelPermalink }}">
+  <link rel="modulepreload" href="{{ $vendor.millionRender.RelPermalink }}">
+  <script type="module">
+    import { attachSPARouting } from "{{$router.RelPermalink}}"
+    attachSPARouting(init, render)
+  </script>
+  {{else}}
+  <script>
+    window.Million = {
+      navigate: (url) => (window.location.href = url),
+      prefetch: () => {},
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      init()
+      render()
+    })
+  </script>
+  {{end}}
+{{ template "_internal/google_analytics.html" . }}
+</head>

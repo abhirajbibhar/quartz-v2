@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="{{ .Lang }}">
+{{ partial "head.html" . }}
+
+<body>
+{{partial "nav.html" .}}
+<div class="singlePage">
+    <main>
+    <!-- Begin actual content -->
+    <article class="card">
+        <h1>{{ i18n "tag" }}: {{ .Title }}</h1>
+        {{with .Params.description}}
+            <p>{{.}}</p>
+        {{end}}
+        {{partial "page-list.html" (dict "pages" .Paginator.Pages "level" 2)}}
+        {{ template "_internal/pagination.html" . }}
+    </article>
+    </main>
+    <!-- {{partial "contact.html" .}} -->
+</div>
+</body>
+</html>

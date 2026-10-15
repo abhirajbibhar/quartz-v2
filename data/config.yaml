@@ -1,0 +1,61 @@
+name: Abhiraj Bibhar
+enableToc: true
+openToc: false
+enableLinkPreview: true
+enableLatex: false
+enableCodeBlockTitle: true
+enableCodeBlockCopy: true
+enableCallouts: true
+enableSPA: true
+enableFooter: true
+enableContextualBacklinks: true
+enableRecentNotes: true
+enableGitHubEdit: true
+GitHubLink: https://github.com/abhirajbibhar/website/tree/main/content
+enableSemanticSearch: false
+operandApiKey: "REPLACE-WITH-YOUR-OPERAND-API-KEY"
+description:
+  Portfolio and blog of Abhiraj Bibhar, a research scholar in Anthropology at SRM University.
+  Working notes and writings on digital anthropology, state and governance, and Indian society.
+page_title:
+  "Abhiraj Bibhar"
+subtitle:
+  "Research Scholar at SRM University"
+links:
+  - link_name: Twitter
+    link: https://x.com/abhirajbibhar
+  - link_name: Github
+    link: https://github.com/abhirajbibhar
+  - link_name: LinkedIn
+    link: https://linkedin.com/in/abhirajbibhar
+  - link_name: Email
+    link: mailto:abhiraj.phd@gmail.com
+
+favicon:
+  - rel: icon
+    type: image/svg+xml
+    href: favicon.svg
+  - rel: icon
+    href: favicon.ico
+    sizes: any
+  - rel: icon
+    type: image/png
+    sizes: 16x16
+    href: favicon-16x16.png
+  - rel: icon
+    type: image/png
+    sizes: 32x32
+    href: favicon-32x32.png
+  - rel: icon
+    type: image/png
+    sizes: 192x192
+    href: favicon-192x192.png
+  - rel: icon
+    type: image/png
+    sizes: 512x512
+    href: favicon-512x512.png
+  - rel: apple-touch-icon
+    sizes: 180x180
+    href: apple-touch-icon.png
+  - rel: manifest
+    href: site.webmanifest

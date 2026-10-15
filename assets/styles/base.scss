@@ -1,0 +1,761 @@
+/* et-book local fonts */
+@font-face {
+  font-family: "et-book";
+  src: url("/et-book/et-book-bold-line-figures.woff2") format("woff2"), url("/et-book/et-book-bold-line-figures.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "et-book";
+  src: url("/et-book/et-book-display-italic-old-style-figures.woff2") format("woff2"), url("/et-book/et-book-display-italic-old-style-figures.woff") format("woff");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "et-book";
+  src: url("/et-book/et-book-roman-line-figures.woff2") format("woff2"), url("/et-book/et-book-roman-line-figures.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Weight 600 has two candidate files; the later declaration wins, so the
+   roman-old-style face was dead weight (Chrome still fetched its 44 KB). */
+@font-face {
+  font-family: "et-book";
+  src: url("/et-book/et-book-semi-bold-old-style-figures.woff2") format("woff2"), url("/et-book/et-book-semi-bold-old-style-figures.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fira Code";
+  src: url("/fonts/fira-code/fira-code-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --font-body: "et-book", Georgia, serif;
+  --font-header: "et-book", Georgia, serif;
+  --font-mono: "Fira Code", monospace;
+  font-size: 18px;
+}
+
+
+// Color Scheme 
+:root {
+  --light: #faf8f8;
+  --dark: #141021;
+  --secondary: #009BFF;
+  --tertiary: #84a59d;
+  --visited: #afbfc9;
+  --primary: #FF9800;
+  --gray: #4e4e4e;
+  /* Secondary/de-emphasised text (dates, subtitle, "last updated"). Replaces the
+     old `opacity: 0.5–0.7` dimming, which blended --gray into the background and
+     dropped it to 2.9:1 (Lighthouse "color-contrast"). 6.0:1 on --light, 5.6:1 on
+     --lightgray. Every scheme in themes/ defines its own --muted. */
+  --muted: #5f5f5f;
+  --lightgray: #f0f0f0;
+  --outlinegray: #dadada;
+  --million-progress-bar-color: var(--secondary);
+
+  // Nav bar tokens
+  --bar-bg: rgba(250, 248, 248, 0.85);
+  --bar-border: rgba(0, 0, 0, 0.08);
+  --link: var(--secondary);
+  --ink: var(--dark);
+  --ink-dim: var(--gray);
+  --hover: rgba(0, 0, 0, 0.05);
+  --panel-bg: var(--light);
+  --panel-border: var(--outlinegray);
+  --accent: var(--primary);
+  --switch-track: var(--outlinegray);
+  --switch-knob: var(--light);
+  --titleFont: var(--font-header);
+  --bodyFont: var(--font-body);
+  --codeFont: var(--font-mono);
+  /* Lets the browser theme native UI (scrollbars, form controls, the search
+     input caret/autofill) to match the site's own light/dark toggle. */
+  color-scheme: light;
+}
+
+[saved-theme="dark"] {
+  color-scheme: dark;
+  --light: #1e1e21 !important;
+  --dark: #fbfffe !important;
+  /* Lightened from #6b879a: internal links sit on their own 15% tint highlight
+     (#2f3135), where the old value gave only 3.45:1 contrast. */
+  --secondary: #FF9800 !important;
+  --visited: #4a575e !important;
+  --tertiary: #84a59d !important;
+  --primary: #009BFF !important;
+  --gray: #d4d4d4 !important;
+  --muted: #9f9fa0 !important; /* 6.3:1 on --light, 5.6:1 on --lightgray */
+  --lightgray: #292633 !important;
+  --outlinegray: #343434 !important;
+
+  // Nav bar tokens (dark)
+  --bar-bg: rgba(30, 30, 33, 0.88) !important;
+  --bar-border: rgba(255, 255, 255, 0.08) !important;
+  --ink: var(--dark) !important;
+  --ink-dim: var(--gray) !important;
+  --hover: rgba(255, 255, 255, 0.06) !important;
+  --panel-bg: var(--light) !important;
+  --panel-border: var(--outlinegray) !important;
+  --switch-track: var(--outlinegray) !important;
+  --switch-knob: var(--light) !important;
+}
+
+// typography
+html {
+  scroll-behavior: smooth;
+  &:lang(ar) {
+    & p, & h1, & h2, & h3, article, header {
+      direction: rtl;
+      text-align: right;
+    }
+  }
+  & footer > p {
+    text-align: center !important;
+  }
+}
+
+.singlePage {
+  padding: 2.5em 10vw 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  @media all and (max-width: 1200px) {
+    padding: 25px 5vw 100px;
+  }
+}
+
+
+body {
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+  box-sizing: border-box;
+  background-color: var(--light);
+}
+
+h1, h2, h3, h4, h5, h6, thead {
+  font-family: var(--font-header);
+  color: var(--dark);
+  font-weight: revert;
+  margin: 2rem 0 0;
+  padding: 2rem auto 1rem;
+
+  &:hover > .hanchor {
+    color: var(--secondary);
+  }
+}
+
+.hanchor {
+  font-family: var(--font-header);
+  opacity: 0.8;
+  transition: color 0.3s ease;
+  color: var(--dark);
+}
+
+p, ul, text, a, tr, td, li, ol, ul {
+  font-family: var(--font-body);
+  color: var(--gray);
+  fill: var(--gray);
+  font-weight: revert;
+  margin: revert;
+  padding: revert;
+}
+
+tbody, li, p {
+  line-height: 1.5em;
+}
+
+.mainTOC {
+  border-radius: 5px;
+  padding: 0.75em 0;
+
+  & details {
+    & summary {
+      cursor: zoom-in;
+      font-family: var(--font-header);
+      color: var(--dark);
+      font-weight: 700;
+    }
+
+    &[open] summary {
+      cursor: zoom-out;
+    }
+  }
+}
+
+#TableOfContents > ol {
+  counter-reset: section;
+  margin-left: 0em;
+  padding-left: 1.5em;
+  & > li {
+    counter-increment: section;
+    & > ol {
+      counter-reset: subsection;
+      & > li {
+        counter-increment: subsection;
+        &::marker {
+          content: counter(section) "." counter(subsection) "  ";
+        }
+      }
+    }
+  }
+
+  & > li::marker {
+    content: counter(section) "  ";
+  }
+
+  & > li::marker, & > li > ol > li::marker {
+    font-family: var(--font-body);
+    font-weight: 700;
+  }
+}
+
+table {
+  border: 1px solid var(--outlinegray);
+  width: 100%;
+  padding: 1.5em;
+  border-collapse: collapse;
+}
+
+td, th {
+  padding: 0.2em 1em;
+  border: 1px solid var(--outlinegray);
+}
+
+img {
+  max-width: 100%;
+  height: auto; /* width/height attributes reserve space (no CLS) but must not stretch */
+  border-radius: 3px;
+  margin: 1em 0;
+}
+
+p > img + em {
+  display: block;
+  transform: translateY(-1em);
+}
+
+sup {
+  line-height: 0
+}
+
+blockquote {
+  margin-left: 0em;
+  border-left: 3px solid var(--secondary);
+  padding-left: 1em;
+  transition: border-color 0.2s ease;
+}
+
+.footnotes p {
+  margin: 0.5em 0;
+}
+
+.pagination {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  margin-top: 2em;
+  gap: 1.5em;
+  justify-content: center;
+
+  .disabled {
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  & > li {
+    text-align: center;
+    display: inline-block;
+
+    & a {
+      background-color: transparent !important;
+    }
+
+    /* Current page: was opacity .2 (nearly invisible). Now the emphasised item. */
+    & a[href$="#"], &.active a {
+      color: var(--dark);
+      cursor: default;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+  }
+}
+
+article {
+  & > h1 {
+    /* 1rem, not 1em: this h1 sets its own font-size to 2em below, and `em` on a
+       property resolves against the element's OWN font-size, not its parent's —
+       so `margin-top: 1em` here would mean 1 × 2em = 2em, silently reproducing
+       the exact bug this is fixing. `rem` is always relative to the root, which
+       matches how .home-header's and .about-hero's `margin: 1em 0 ...` resolve
+       (neither overrides its own font-size), so 1rem here is the same physical
+       distance as their 1em, and every page's first heading lines up. */
+    margin-top: 1rem;
+    font-size: 2em;
+  }
+  
+  & > .meta {
+    margin: 0 0 1em 0;
+    color: var(--muted);
+  }
+
+  & a {
+    font-weight: 600;
+
+    &.internal-link {
+      text-decoration: none;
+      background-color: transparentize(#8f9fa9, 0.85);
+      padding: 0 0.1em;
+      margin: auto -0.1em;
+      border-radius: 3px;
+      font-style: italic;
+
+      &.broken {
+        color: var(--muted);
+        background-color: transparent;
+        text-decoration: underline dotted;
+        text-underline-offset: 0.15em;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  & p {
+    overflow-wrap: anywhere;
+  }
+}
+
+.tags {
+  list-style: none;
+  padding-left: 0;
+
+  & .meta {
+    margin: 1.5em 0;
+    & > h1,
+    & > h2 {
+      margin: 0;
+      font-size: 2em; /* was an <h1>; now an <h2>, same size */
+    }
+    & > p {
+      margin: 0;
+    }
+  }
+
+  & > li {
+    display: inline-block;
+    margin: 0.4em 0.2em;
+  }
+
+  & > li > a {
+    border-radius: 8px;
+    border: var(--outlinegray) 1px solid;
+    padding: 0.2em 0.5em;
+    &::before {
+      content: "#";
+      margin-right: 0.3em;
+      color: var(--outlinegray);
+    }
+  }
+}
+
+.backlinks a {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+sup > a {
+  text-decoration: none;
+  padding: 0 0.1em 0 0.2em;
+}
+
+#page-title {
+  margin: 0;
+  & > a {
+    font-family: var(--font-header);
+  }
+}
+
+a {
+  font-size: 1em;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  color: var(--secondary);
+  &:hover {
+    color: var(--tertiary) !important;
+  }
+}
+
+pre {
+  font-family: var(--font-mono);
+  padding: 0.75em;
+  border-radius: 3px;
+  overflow-x: scroll;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.15em 0.3em;
+  border-radius: 5px;
+  background: var(--lightgray);
+}
+
+@keyframes fadeIn {
+  0% {opacity:0;}
+  100% {opacity:1;}
+}
+
+footer {
+  margin-top: 4em;
+  text-align: center;
+  & ul {
+    padding-left: 0;
+  } 
+}
+
+hr {
+  width: 25%;
+  margin: 4em auto;
+  height: 2px;
+  border-radius: 1px;
+  border-width: 0;
+  color: var(--dark);
+  background-color: var(--dark);
+}
+
+.page-end {
+  display: flex;
+  flex-direction: row;
+  gap: 2em;
+
+  /* "Backlinks" / "Interactive Graph" are <h2> so the outline doesn't jump from
+     <h1> to <h3>; sized like the <h3> they used to be. */
+  & h2 {
+    font-size: 1.17em;
+  }
+
+  @media all and (max-width: 780px) {
+    flex-direction: column;
+  }
+
+  & > * {
+    flex: 1 0 0;
+  }
+
+  & > .backlinks-container {
+    & > ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      & > li {
+        margin: 0.5em 0;
+        padding: 0.25em 1em;
+        border: var(--outlinegray) 1px solid;
+        border-radius: 5px
+      }
+    }
+  }
+
+  & #graph-container {
+    border: var(--outlinegray) 1px solid;
+    border-radius: 5px;
+    box-sizing: border-box;
+    min-height: 250px;
+    margin: 0.5em 0;
+
+    & > svg {
+      margin-bottom: -5px;
+
+    }
+  }
+}
+
+.centered {
+  margin-top: 30vh;
+
+  & > h2 {
+    font-size: 1.17em; /* was <h3> */
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 1em 0 2em;
+
+  & > h1 {
+    font-size: 2em;
+  }
+
+  & > nav {
+    @media all and (max-width: 600px) {
+      display: none;
+    }
+  }
+
+  #search-icon {
+    background-color: var(--lightgray);
+    border-radius: 4px;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    & > p {
+      display: inline;
+      padding: 0 1.5em 0 2em;
+    }
+  }
+
+  & svg {
+    cursor: pointer;
+    width: 18px;
+    min-width: 18px;
+    margin: 0 0.5em;
+
+    &:hover .search-path {
+      stroke: var(--tertiary);
+    }
+
+    .search-path {
+      stroke: var(--gray);
+      stroke-width: 2px;
+      transition: stroke 0.5s ease;
+    }
+  }
+}
+
+#search-container {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100%;
+  overflow: scroll;
+  display: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  & > div {
+    width: 50%;
+    margin-top: 15vh;
+    margin-left: auto;
+    margin-right: auto;
+
+    @media all and (max-width: 1200px) {
+      width: 90%;
+    }
+
+    & > * {
+      width: 100%;
+      border-radius: 4px;
+      background: var(--light);
+      box-shadow: 0 14px 50px rgba(27, 33, 48, 0.12), 0 10px 30px rgba(27, 33, 48, 0.16);
+      margin-bottom: 2em;
+    }
+
+    & > input {
+      box-sizing: border-box;
+      padding: 0.5em 1em;
+      font-family: var(--font-body);
+      color: var(--dark);
+      font-size: 1.1em;
+      border: 1px solid var(--outlinegray);
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    & > #results-container {
+      & .result-card {
+        padding: 1em;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        border: 1px solid var(--outlinegray);
+        border-bottom: none;
+        width: 100%;
+
+        // normalize button props
+        font-family: inherit;
+        font-size: 100%;
+        line-height: 1.15;
+        margin: 0;
+        overflow: visible;
+        text-transform: none;
+        text-align: left;
+        background: var(--light);
+        outline: none;
+
+        &:hover, &:focus {
+          background: rgba(180, 180, 180, 0.15);
+        }
+
+        &:first-of-type {
+          border-top-left-radius: 5px;
+          border-top-right-radius: 5px;
+        }
+
+        &:last-of-type {
+          border-bottom-left-radius: 5px;
+          border-bottom-right-radius: 5px;
+          border-bottom: 1px solid var(--outlinegray);
+        }
+
+        & > h3, & > p {
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+
+.search-highlight {
+  background-color: #afbfc966;
+  padding: 0.05em 0.2em;
+  border-radius: 3px;
+}
+
+.section-ul {
+  list-style: none;
+  margin-top: 2em;
+  padding-left: 0;
+
+}
+
+.section-li {
+  margin-bottom: 1em;
+
+  & > .section {
+    display: flex;
+    align-items: center; 
+
+    @media all and (max-width: 600px) {
+      & .tags {
+        display: none;
+      }
+    }
+
+    & .section-title > a {
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    & p {
+      margin: 0;
+      padding-right: 1em;
+      flex-basis: 6em; 
+    }
+  }
+
+  /* Entry title. <h2> or <h3> depending on where the list sits (see
+     partials/page-list.html); size is pinned so the tag never changes the look. */
+  & .section-title {
+    font-size: 1.17em;
+    font-weight: 700;
+    margin: 0em;
+  }
+
+  & .meta {
+    color: var(--muted);
+  }
+}
+
+@keyframes dropin {
+  0% {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+  1% {
+    display: inline-block;
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.popover {
+  z-index: 999;
+  position: absolute;
+  width: 20rem;
+  display: none;
+  background-color: var(--light);
+  padding: 1rem;
+  margin: 1rem;
+  border: 1px solid var(--outlinegray);
+  border-radius: 5px;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  user-select: none;
+  overflow-wrap: anywhere;
+  box-shadow: 6px 6px 36px 0px rgba(0,0,0,0.25);
+
+  @media all and (max-width: 600px) {
+    display: none !important;
+  }
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    display: inline-block;
+    animation: dropin 0.2s ease;
+  }
+
+  & > h3 {
+    font-size: 1rem;
+    margin: 0.25rem 0;
+  }
+
+  & > .meta {
+    margin-top: 0.25rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  & > p {
+    margin: 0;
+    padding: 0.5rem 0;
+  } 
+
+  & > p, & > a {
+    font-size: 1rem;
+    font-weight: 400;
+    user-select: none;
+  }
+}
+
+#contact_buttons ul {
+  list-style-type: none;
+
+  li {
+    display: inline-block;
+  }
+
+  li a {
+    padding: 0 1em;
+  }
+}
+

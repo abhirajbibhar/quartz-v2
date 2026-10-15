@@ -1,0 +1,18 @@
+<div id="search-container">
+  <div id="search-space" class="card">
+    <input autocomplete="off" id="search-bar" name="search" type="text" aria-label="{{ i18n "search" }}"
+      placeholder="{{ i18n "search_for_something" }}" dir="{{ $.Site.Language.Direction }}">
+    <div id="results-container">
+    </div>
+  </div>
+</div>
+{{if hugo.Data.config.enableSemanticSearch}}
+{{ $js := resources.Get "js/semantic-search.js" | resources.ExecuteAsTemplate "js/semantic-search.js" . | resources.Fingerprint "md5" | resources.Minify }}
+<script defer src="{{ $js.RelPermalink }}"></script>
+{{else}}
+{{ $vendor := partialCached "lib/vendor.html" . }}
+<script src="{{ $vendor.flexsearch.RelPermalink }}" defer></script>
+{{ $js := resources.Get "js/full-text-search.js" | resources.Fingerprint "md5" | resources.Minify }}
+<script defer src="{{ $js.RelPermalink }}"></script>
+{{end}}
+

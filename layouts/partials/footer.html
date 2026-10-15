@@ -1,0 +1,16 @@
+
+
+<hr/>
+
+{{if hugo.Data.config.enableFooter}}
+<div class="page-end" id="footer">
+    <div class="backlinks-container card">
+        {{partial "backlinks.html" .}}
+    </div>
+    <div class="graph-container-wrap card">
+        {{partial "graph.html" .}}
+    </div>
+</div>
+{{end}}
+
+

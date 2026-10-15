@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="{{ .Lang }}">
+{{ partial "head.html" . }}
+
+<body>
+{{partial "nav.html" .}}
+<div class="singlePage">
+    <main>
+    <!-- Begin actual content -->
+    <article class="card">
+      {{if .Title}}<h1>{{ .Title }}</h1>{{end}}
+      <p class="meta">
+        {{ i18n "last_updated" }} {{ partial "date-fmt.html" .}} 
+          {{ partial "github.html" . }}
+      </p>
+      {{ with (.GetTerms "tags") }}
+      <ul class="tags">
+          {{ range . }}
+          <li><a href="{{ .RelPermalink }}">{{ .LinkTitle | humanize }}</a></li>
+          {{ end }}
+      </ul>
+      {{ end }}
+      {{partial "toc.html" .}}
+      {{partial "textprocessing.html" . }}
+    </article>
+    {{partial "footer.html" .}}
+    </main>
+</div>
+</body>
+</html>

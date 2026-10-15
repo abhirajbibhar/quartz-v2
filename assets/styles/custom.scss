@@ -1,0 +1,336 @@
+// Add your own CSS here!
+
+// ════════════════════════════════════════════════════════════
+// ── Redesign v0.0.1 — elevated "AI chatbot" card look ───────
+// Every top-level block (article, home header, backlinks, graph,
+// recent notes, search panel, 404) is wrapped in a `.card`.
+// Callouts (.callout / _callouts.scss) are intentionally untouched.
+// ════════════════════════════════════════════════════════════
+
+// Canvas behind the cards so they visibly float. Page background
+// uses --lightgray; cards use --light. Both flip automatically in
+// dark mode and under per-scheme theme overrides.
+body {
+  background-color: var(--lightgray);
+}
+
+.card {
+  background: var(--light);
+  border: 1px solid var(--outlinegray);
+  border-radius: 16px;
+  padding: clamp(1em, 2.5vw, 1.75em);
+  margin-bottom: 1.25em;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 8px 24px -12px rgba(0, 0, 0, 0.14);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.06),
+      0 14px 32px -12px rgba(0, 0, 0, 0.2);
+  }
+
+  // Cards shouldn't add their own outer top margin on top of the gap
+  > *:first-child {
+    margin-top: 0;
+  }
+  > *:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Backlinks + Graph sit side by side inside .page-end (a flex row).
+// Remove their bottom margin there so the two cards align; the flex
+// `gap: 2em` already spaces them.
+.page-end > .card {
+  margin-bottom: 0;
+}
+
+// The graph canvas used to carry its own thin border/radius; now that
+// it lives inside a card, drop the inner frame to avoid a double border.
+#graph-container {
+  border: none;
+  margin: 0.5em 0 0;
+}
+
+// Home header — pulled out of <article> into its own card.
+.home-header {
+  margin: 1em 0 1.25em;
+}
+
+// About hero — replace the flat border-bottom divider with the card.
+.about-hero {
+  margin: 1em 0 1.25em;
+  padding: clamp(1em, 2.5vw, 1.75em);
+  border-bottom: none;
+}
+
+// Search panel floats over the dimmed backdrop — stronger elevation.
+#search-space.card {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 24px 60px -16px rgba(0, 0, 0, 0.35);
+
+  &:hover {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.12),
+      0 24px 60px -16px rgba(0, 0, 0, 0.35);
+  }
+}
+
+// 404 — compact, centered card.
+.error-card {
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+// ── New site color scheme (indigo / violet) ─────────────────
+// Overrides base.scss :root tokens for the whole site.
+// NOTE: callout colors live in assets/styles/_callouts.scss and
+// are deliberately left unchanged.
+:root {
+  --light: #fbfaff;        // card surface — faint indigo-tinted white
+  --dark: #191631;         // headings / strong ink
+  --secondary: #5b5bd6;    // links & accents (indigo)
+  --tertiary: #7c6f9d;     // muted decorative tone
+  --visited: #a5a0c2;      // visited-link tint
+  --primary: #8b5cf6;      // brand accent (violet)
+  --gray: #474463;         // body text
+  --muted: #6b6884;        // de-emphasised text
+  --lightgray: #eeecf7;    // page canvas behind the cards
+  --outlinegray: #ddd9ec;  // card borders / hairlines
+
+  --bar-bg: rgba(251, 250, 255, 0.85);
+  --bar-border: rgba(25, 22, 49, 0.08);
+}
+
+// Dark-mode counterpart of the same palette. base.scss flips tokens under
+// `[saved-theme="dark"]` with !important, so we mirror the same selector
+// and use !important too — later in source order it wins.
+[saved-theme="dark"] {
+  --light: #1c1a2b !important;
+  --dark: #eeecfa !important;
+  --secondary: #9d9dff !important;
+  --tertiary: #9d8fc0 !important;
+  --visited: #6f6a92 !important;
+  --primary: #a78bfa !important;
+  --gray: #b9b6cf !important;
+  --muted: #918fab !important;
+  --lightgray: #131120 !important;
+  --outlinegray: #2e2b45 !important;
+
+  --bar-bg: rgba(28, 26, 43, 0.88) !important;
+  --bar-border: rgba(255, 255, 255, 0.08) !important;
+}
+
+// ── About ──────────────────────────────────────────────────
+.about-hero {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 3em;
+  align-items: start;
+  /* margin-top: 1em, explicit for the same reason as .home-header above — this
+     was previously an accidental inheritance from the generic `header` rule in
+     base.scss, not a value anyone chose for this component. Padding stays 0 at
+     the top (the border-bottom only needs space below the row, not above it). */
+  margin: 1em 0 0;
+  padding: 0 0 2em;
+  border-bottom: 1px solid var(--outlinegray);
+
+  @media (max-width: 780px) {
+    grid-template-columns: 1fr;
+    gap: 1.5em;
+    padding: 0 0 1.5em;
+    align-items: center;
+  }
+}
+
+.about-hero-portrait {
+  @media (max-width: 780px) {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.about-hero-frame {
+  width: 280px;
+
+  @media (max-width: 780px) {
+    width: 180px;
+  }
+
+  img {
+    width: 100%;
+    height: auto; /* width/height attributes reserve the space; CSS sizes the image */
+    aspect-ratio: 5 / 6;
+    object-fit: cover;
+    display: block;
+    border: 1px solid var(--outlinegray);
+    background: var(--lightgray);
+    border-radius: 3px;
+    box-shadow: 14px 14px 0 var(--primary);
+  }
+}
+
+.about-hero-text #page-title {
+  font-family: var(--font-header);
+  font-size: 2em;
+  line-height: 1.25;
+  margin: 0 0 0.25em;
+}
+
+.about-hero-text .about-role {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1em;
+  color: var(--gray);
+  margin: 0 0 0.75em;
+}
+
+.about-hero-text .about-affil {
+  color: var(--gray);
+//  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 780px) {
+  .about-hero-text {
+    text-align: center;
+  }
+  .about-hero-meta {
+    text-align: left;
+  }
+}
+
+.about-hero-meta {
+  margin: 1.5em 0 0;
+  padding-top: 1em;
+  border-top: 1px solid var(--outlinegray);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  font-family: var(--font-body);
+}
+
+.about-hero-meta .meta-row {
+  display: grid;
+  grid-template-columns: 10em 1fr;
+  gap: 0.75em;
+  align-items: baseline;
+}
+
+.about-hero-meta dt {
+  margin: 0;
+  color: var(--dark);
+}
+
+.about-hero-meta dd {
+  margin: 0;
+  color: var(--dark);
+}
+
+.about-hero-meta dd a {
+  color: var(--dark);
+  border-bottom: 1px solid var(--outlinegray);
+  text-decoration: none;
+}
+
+.about-hero-meta dd a:hover {
+  color: var(--secondary);
+  border-color: var(--secondary);
+  text-decoration: none;
+}
+
+.about-social {
+  display: flex;
+  gap: 0.75em;
+  margin-top: 1.5em;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75em;
+    height: 1.75em;
+    border: 1px solid var(--outlinegray);
+    border-radius: 5px;
+    color: var(--gray);
+    transition: color 0.2s ease, border-color 0.2s ease;
+
+    svg {
+      width: 1.1em;
+      height: 1.1em;
+    }
+
+    &:hover {
+      color: var(--secondary);
+      border-color: var(--secondary);
+    }
+  }
+}
+
+.about-body {
+  padding-top: 1.5em;
+}
+
+// Home page header
+.home-header {
+  display: block;
+  margin: 1em 0 2em;
+
+  & > h1 {
+    margin: 0 0 0.3em;
+    font-size: 2.5em;
+  }
+
+  & > .subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.1em;
+  }
+}
+
+span {
+  &.caps {
+    font-variant: small-caps;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--dark);
+  }
+}
+
+hr.footnotes-sep,
+.footnotes > hr {
+  width: 15%;
+  margin: 1.5em 0;
+  height: 1px;
+  background-color: var(--gray);
+  border: none;
+}
+
+.epigraph {
+  margin: 2em 0 0 2em;
+  > blockquote {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-left: 0;
+    padding-left: 0;
+    font-size: 1.1em;
+    &,
+    > p {
+      font-style: italic;
+    }
+    > footer {
+      font-style: normal;
+      margin-top: 0.25em;
+      text-align: right;
+      color: var(--dark);
+      > cite {
+        font-style: italic;
+      }
+    }
+  }
+}

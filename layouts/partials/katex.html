@@ -1,0 +1,10 @@
+{{if hugo.Data.config.enableLatex}}
+{{ $vendor := partialCached "lib/vendor.html" . }}
+{{/* `with` also covers the case where the registry could not resolve katex because the
+     files are not vendored: it already raised the actionable build error, and this
+     keeps a second, opaque error out of the output. */}}
+{{ with $vendor.katex }}
+<link rel="stylesheet" href="{{ $vendor.katexCSS.RelPermalink }}">
+<script defer src="{{ .RelPermalink }}"></script>
+{{ end }}
+{{end}}
